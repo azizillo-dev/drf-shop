@@ -14,7 +14,7 @@ urlpatterns = [
     path('comments/', UserCommentsView.as_view(), name="user-comments"),
     
     path('products/<int:id>/like/', LikedView.as_view(), name='product-like'),
-    path('products/<int:pk>/comment/', CommentedView.as_view(), name='product-comment'),
+    path('products/<int:pk>/comments/', CommentsView.as_view(), name='product-comment'),
 ]
 
 

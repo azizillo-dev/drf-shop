@@ -23,6 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return data
 
+    
 
 class LoginSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)

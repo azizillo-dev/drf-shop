@@ -16,6 +16,7 @@ class ProductCreateView(APIView):
         serializer.save(owner=request.user)
         return Response(serializer.data, status=201)
 
+
 class ProductListView(APIView):
     def get(self, request):
         page = int(request.query_params.get('page', 1))
@@ -97,7 +98,7 @@ class LikedView(APIView):
 
 
 
-class CommentedView(APIView):
+class CommentsView(APIView):
 
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
@@ -107,8 +108,6 @@ class CommentedView(APIView):
             "data" : CommentSerializer(comments, many=True).data
         })
 
-
-
     permission_classes = [IsAuthenticated]
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
@@ -116,6 +115,19 @@ class CommentedView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save(product=product,author=request.user)
         return Response(serializer.data, status=201)
+
+
+class CommentDeleteView(APIView):
+    permission_classes = [IsAuthenticated, CanProductUpdate]
+    def delete(self, request, pk):
+        comment = Comment.objects.get(pk=pk)
+        self.check_object_permissions(request, comment)
+        comment.delete()
+        return Response({
+            "msg" : "Comment deleted"
+        })
+
+
 
 
 
@@ -146,6 +158,9 @@ class UserCommentsView(APIView):
             "msg" : "Siz comment yozgan mahsulotlar",
             "data" : serializer.data
         })
+
+
+
 
 
 

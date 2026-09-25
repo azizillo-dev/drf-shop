@@ -20,3 +20,4 @@ class CanProductUpdate(BasePermission):
 
 
 
+
