@@ -4,7 +4,12 @@ from .models import Category, Product, Like, Comment
 from .serializers import ProductSerializer, CommentSerializer, CategorySerializer
 from django.db.models import Q
 from users.permissions import *
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
+from .pagination import CustomPageNumberPagination
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
+
 
 
 class ProductCreateView(APIView):
@@ -17,29 +22,14 @@ class ProductCreateView(APIView):
         return Response(serializer.data, status=201)
 
 
-class ProductListView(APIView):
-    def get(self, request):
-        page = int(request.query_params.get('page', 1))
-        page_size = 10
-        start = (page - 1) * page_size
-        end = start + page_size
-        category = request.query_params.get('category')
-        if category:
-            products = Product.objects.filter(category=category)
-            
-        search = request.query_params.get("search")
-        if search:
-            products = Product.objects.filter(
-                Q(title__icontains=search) | Q(description__icontains=search) |
-                Q(category__name__icontains=search)
-            )[start:end]
-        else:
-            products = Product.objects.all()[start:end]
-        serializer = ProductSerializer(products, many=True)
-        return Response({
-            "msg" : "Products list",
-            "products" : serializer.data
-        })
+class ProductListView(ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    pagination_class = CustomPageNumberPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['category']
+    search_fields = ['title', 'description', 'category__name']
+    ordering_fields = ['price', 'view_count', 'like_count']
 
 
 
