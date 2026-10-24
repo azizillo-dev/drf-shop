@@ -8,7 +8,8 @@ from rest_framework.generics import get_object_or_404, ListAPIView
 from .pagination import CustomPageNumberPagination
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
-
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 
 
@@ -22,14 +23,21 @@ class ProductCreateView(APIView):
         return Response(serializer.data, status=201)
 
 
+@method_decorator(cache_page(30), name="dispatch")
 class ProductListView(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     pagination_class = CustomPageNumberPagination
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['category']
-    search_fields = ['title', 'description', 'category__name']
-    ordering_fields = ['price', 'view_count', 'like_count']
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields = ["category"]
+    search_fields = ["title", "description", "category__name"]
+    ordering_fields = ["price", "view_count", "like_count"]
 
 
 

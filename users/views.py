@@ -19,6 +19,7 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data)
 
+
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
